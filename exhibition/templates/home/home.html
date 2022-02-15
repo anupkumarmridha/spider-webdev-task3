@@ -1,0 +1,41 @@
+{% extends 'base.html' %} 
+{% block title %}Home{% endblock title %} 
+{% block homeactive %} active {% endblock homeactive %}
+
+{% block body %} 
+<div class="container my-4">
+    <h1 class="my-2 text-center">Online Exhabition</h1>
+    <div class="container">
+        <h1>Products</h1>
+    <ul>
+    {% for product in object_list %}
+    <li> <a href=" {% url 'Product_Details' product.pk %} ">
+    {{ product.title }} </a> -
+    <br>
+    <a href=" {% url 'category' product.category|slugify %} ">
+        {{ product.category }}</a>-
+    <br>
+
+    <small>
+    {% if user.is_authenticated %}
+    {% if user.id == product.author.id %}
+    <a href=" {% url 'Update_Product' product.pk %} ">(Edit)</a>
+    <a href=" {% url 'Delete_Product' product.pk %} ">(Delete)</a>
+    {% endif %}
+    {% endif %}
+</small>
+
+    <br>
+     {{product.author.username}} - {{ product.created_at }}
+     <br>
+     Price : {{ product.price }} Rs
+    <br>
+    {{ product.desc | slice:':200' | safe }}
+    <a href=" {% url 'Product_Details' product.pk %}">Visit Post</a>
+    </li>
+    {% endfor %}
+    </ul>
+    </div>
+</div>
+
+{% endblock body %}

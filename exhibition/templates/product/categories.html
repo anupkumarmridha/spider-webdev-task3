@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Category{% endblock title %}
+{% block body %}
+<h1>{{ cats }}</h1>
+<ul>
+    {% for product in category_posts %}
+            {% if user.is_authenticated %}
+            <small>
+                <a href=" {% url 'Update_Product' product.pk %} ">Edit</a> 
+                <a href=" {% url 'Delete_Product' product.pk %} ">(Delete)</a>
+            </small>
+            {% endif %}
+<br>
+<small>By: {{ product.author.username }}<br/> Tag: {{ product.title_tag }} <br>{{ product.created_at }}
+    <br>
+    Price {{ product.price }} Rs
+    </small><br/>
+<hr>
+<br/>
+{{ product.desc | slice:':200' }}
+{% endfor %}
+</ul>
+<br/>
+<br/>
+{% endblock body %}

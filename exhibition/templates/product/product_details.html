@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.title }}{% endblock title %}
+{% block body %}
+
+<div class='container'>
+    <h1>{{ product.title }}</h1>
+    <!--
+        {% if user.is_authenticated %}
+            {% if user.id == product.author.id %}
+                <small>
+                    <a href=" {% url 'Update_Product' product.pk %} ">Edit</a> 
+                    <a href=" {% url 'Delete_Product' product.pk %} ">(Delete)</a>
+                </small>
+            {% endif %}
+        {% endif %}
+    -->
+    <br>
+
+    <small>
+        By: {{ product.author.username }}
+        {% if user.profile.profile_pic %}
+        <img src="{{ user.profile.profile_pic.url }}" class="rounded-circle"  width=75 height=75>
+    
+        {% else %}
+        
+            <img src="{% static 'img/avatar.jpg' %}" alt="Avatar"  class="rounded-circle"  width=75 height=75>
+            
+        {% endif %}
+        <br> 
+        Tag: {{ product.title_tag }} 
+        <br>
+        Posted : {{ product.created_at }} <br>Last update : {{ product.updated_at }}
+        <br>
+    </small>
+
+    <hr>
+    {{ product.desc|safe }}
+    <img src=" {{ product.product_image.url }} ">
+    <br>
+    <hr>
+
+    <!--This is for Bid Price-->
+    <small> Price {{ product.price }} Rs </small>
+    <br>
+    <small> Total Bids {{ product.bids.all.count }} </small>
+    <br>
+        {% if not product.bids.all %}
+        
+        
+        <small>Make Your First Bid</small>
+
+        {% else %}
+      
+        {% for bid in product.bids.all  %}
+        <small> Last bid: {{ bid.bid_price }} </small>
+        {% endfor %}
+        {% endif %}
+
+    {% if user.is_authenticated %}
+        <small> 
+                        <div class="form-group">
+                            <form action="{% url 'bid_product' product.pk %}" method="POST" >
+                                {% csrf_token %}
+                                    <input type="hidden" name="productId" value="{{ product.pk }}">
+                                    <label for="bid_product">Bid Product</label>
+                                        <input type="number" class="col-form-label" id="bid_price" min="{{ product.price }} " name="bid_price" placeholder="Bid The Product"></input>
+                               
+                                    <small><button class="btn btn-warning sm sm mr-2">Bid Product</button>
+                                    </small>
+                                </form>
+                        </div>
+                        {% else %}
+
+                        <div class="form-group">
+                            <form>
+                                <label for="bid_product">Bid Product</label>
+                                        <input type="number" class="col-form-label" id="bid_price" min="{{ product.price }}" name="bid_price" placeholder="Bid The Product"></input>
+                                    <small>
+                                        <button type="button" class="btn btn-primary sm mr-2" data-toggle="modal" data-target="#loginModal">Bid Product</button> 
+                                    </small>
+                                
+                            </form>
+                        </div>
+        </small>
+    {% endif %}
+
+    <!--End Bid Price-->
+
+    <form action="{% url 'like_product' product.pk %}" method="POST">
+        {% csrf_token %}
+
+        <br>
+
+        <!--For likes section-->
+        {% if user.is_authenticated %}
+            {% if liked %}
+            {{ total_likes }} Likes
+            <br>
+                <button type="submit", name="product_id", value="{{ product.id }}" class="btn btn-danger btn-sm" >Unlike</button>
+                <br>
+            {% else %}
+            {{ total_likes }} Likes 
+            <br>
+                <button type="submit", name="product_id", value="{{ product.id }}" class="btn btn-primary btn-sm" >Like</button>
+            {% endif %}
+        
+        {% else %}
+            <small>
+                <button type="button" class="btn btn-primary sm mr-2" data-toggle="modal" data-target="#loginModal">Login</button> 
+                to like 
+            </small>
+            - {{ total_likes }} Likes 
+        {% endif %}
+
+
+        </form>
+        <h2>Comments...</h2>
+        Total Comments-{{ product.comments.all.count }}
+        <br>
+        <hr>
+        {% if not product.comments.all %}
+                No Comments Yet..
+                <br>
+
+                <div class="form-group">
+                    <form action="{% url 'add_comment' product.pk %}" method="POST" >
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="hidden" name="productId" value="{{ product.pk }}">
+                            <label for="comment">Comment</label>
+                            <div class="input-group">
+                                <textarea class="form-control" aria-label="With textarea" id="comment" name="comment" placeholder="Comment Here"></textarea>
+                            </div>
+                        </div>
+                    <button class="btn btn-success">Add One</button>
+                    </form>
+                </div>
+
+                {% else %}
+                    
+                       <!--Display all Comments-->
+                        {% for comment in product.comments.all %}
+                            <strong>
+                                {{comment.author}} -{{ comment.created_at }}
+                            </strong> 
+                            <br>
+                            {{ comment.body }}
+                            <br><br>
+                        {% endfor %}
+
+
+                        {% if user.is_authenticated %}
+                        <div class="form-group">
+                            <form action="{% url 'add_comment' product.pk %}" method="POST" >
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <input type="hidden" name="productId" value="{{ product.pk }}">
+                                    <label for="comment">Comment</label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" aria-label="With textarea" id="comment" name="comment" placeholder="Comment Here"></textarea>
+                                    </div>
+                                </div>
+                            <button class="btn btn-success">Add One</button>
+                            </form>
+                        </div>
+                        {% else %}
+
+                        <div class="form-group">
+                            <form>
+                                <div class="form-group">
+                                    <label for="comment">Comment</label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" aria-label="With textarea" id="comment" name="comment" placeholder="Comment Here"></textarea>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary sm mr-2" data-toggle="modal" data-target="#loginModal">Add On</button> 
+                            </form>
+                        </div>
+                        {% endif %}
+                        
+                        
+
+                {% endif %}
+        <hr>
+
+    {% if user.id == product.author.id %}
+        <a href="{% url 'Update_Product' product.pk %}" class="btn btn-warning">Update</a>
+        <a href="{% url 'Delete_Product' product.pk %}" class="btn btn-danger">Delete</a>
+    {% endif %}
+
+    <a href="{% url 'homeView' %}" class="btn btn-dark">Back</a>
+
+</div>
+
+<script>
+    var name="{{ user.id }}";
+    document.getElementById("user_id").value=name;
+</script>
+{% endblock body %}
